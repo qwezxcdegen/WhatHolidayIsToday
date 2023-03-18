@@ -9,6 +9,9 @@ import UIKit
 
 class ViewController: UIViewController {
 
+    
+    @IBOutlet weak var holidayLabel: UILabel!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         fetchData()
@@ -31,8 +34,14 @@ class ViewController: UIViewController {
         
         URLSession.shared.dataTask(with: request) { data, response, error in
             guard let data else { return }
+            guard error == nil else { return }
+            
+            let dayData = try? JSONDecoder().decode(Day.self, from: data)
+            guard let dayData else { return }
+            
             DispatchQueue.main.async {
-                print(String(data: data, encoding: .utf8))
+                guard !dayData.isEmpty else { self.holidayLabel.text = "Today is not a holiday"; return }
+                self.holidayLabel.text = dayData[0].name
             }
         }.resume()
     }
